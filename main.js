@@ -4,22 +4,19 @@ const fs = require('fs')
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1000,
-    height: 700,
+    width: 1200,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
   })
 
   win.loadFile('index.html')
-
-  // Optional: open dev tools
-  // win.webContents.openDevTools()
 }
 
 app.whenReady().then(createWindow)
 
-// Select folder and return image paths
+// Select folder
 ipcMain.handle('select-folder', async () => {
   const result = await dialog.showOpenDialog({
     properties: ['openDirectory']
@@ -36,16 +33,32 @@ ipcMain.handle('select-folder', async () => {
   return files
 })
 
-ipcMain.handle('delete-image', async (event, filePath) => {
+// Move to Rejected
+ipcMain.handle('reject-image', async (event, filePath) => {
   const dir = path.join(path.dirname(filePath), 'Rejected')
 
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir)
 
   const newPath = path.join(dir, path.basename(filePath))
-
   fs.renameSync(filePath, newPath)
 
+  return newPath
+})
+
+// Move to Selected
+ipcMain.handle('select-image', async (event, filePath) => {
+  const dir = path.join(path.dirname(filePath), 'Selected')
+
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir)
+
+  const newPath = path.join(dir, path.basename(filePath))
+  fs.renameSync(filePath, newPath)
+
+  return newPath
+})
+
+// Undo move
+ipcMain.handle('restore-image', async (event, oldPath, newPath) => {
+  fs.renameSync(newPath, oldPath)
   return true
 })

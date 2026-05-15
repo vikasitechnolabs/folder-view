@@ -1,9 +1,17 @@
 let images = []
 let index = 0
 
+let selectedCount = 0
+let rejectedCount = 0
+
+let history = []
+
 async function loadFolder() {
   images = await window.api.selectFolder()
   index = 0
+  selectedCount = 0
+  rejectedCount = 0
+  history = []
   showImage()
 }
 
@@ -14,63 +22,105 @@ function showImage() {
 
   if (index >= images.length) {
     document.getElementById('preview').src = ''
-    document.getElementById('prevPreview').src = ''
-    document.getElementById('nextPreview').src = ''
     document.getElementById('counter').innerText = 'Done!'
     return
   }
 
-  // Main image
-  document.getElementById('preview').src = images[index]
+  const img = images[index]
 
-  // Previous preview
-  if (index > 0) {
-    document.getElementById('prevPreview').src = images[index - 1]
-  } else {
-    document.getElementById('prevPreview').src = ''
-  }
-
-  // Next preview
-  if (index < images.length - 1) {
-    document.getElementById('nextPreview').src = images[index + 1]
-  } else {
-    document.getElementById('nextPreview').src = ''
-  }
-
+  document.getElementById('preview').src = img
   document.getElementById('counter').innerText =
     `${index + 1} / ${images.length}`
+
+  document.getElementById('stats').innerText =
+    `Selected: ${selectedCount} | Rejected: ${rejectedCount}`
+
+  // prev
+  document.getElementById('prevPreview').src =
+    index > 0 ? images[index - 1] : ''
+
+  // next
+  document.getElementById('nextPreview').src =
+    index < images.length - 1 ? images[index + 1] : ''
+
+  // preload next
+  if (images[index + 1]) {
+    new Image().src = images[index + 1]
+  }
 }
 
-// 👉 Next
+function showOverlay(text, color) {
+  const overlay = document.getElementById('overlay')
+  overlay.innerText = text
+  overlay.style.color = color
+
+  setTimeout(() => {
+    overlay.innerText = ''
+  }, 500)
+}
+
+// NAVIGATION
 function nextImage() {
   index++
   showImage()
 }
 
-// 👉 Previous
 function prevImage() {
   index--
-  if (index < 0) index = 0
   showImage()
 }
 
-// 👉 Delete + Next (moves file)
-async function deleteAndNext() {
+// KEEP
+async function keepImage() {
   const file = images[index]
+  const newPath = await window.api.selectImage(file)
 
-  await window.api.deleteImage(file)
+  history.push({ type: 'keep', oldPath: file, newPath })
 
-  // Remove from list
+  selectedCount++
   images.splice(index, 1)
 
+  showOverlay('SELECTED', 'lime')
   showImage()
 }
 
-// 👉 Keyboard shortcuts
+// REJECT
+async function rejectImage() {
+  const file = images[index]
+  const newPath = await window.api.rejectImage(file)
+
+  history.push({ type: 'reject', oldPath: file, newPath })
+
+  rejectedCount++
+  images.splice(index, 1)
+
+  showOverlay('REJECTED', 'red')
+  showImage()
+}
+
+// UNDO
+async function undo() {
+  const last = history.pop()
+  if (!last) return
+
+  await window.api.restoreImage(last.oldPath, last.newPath)
+
+  images.splice(index, 0, last.oldPath)
+
+  if (last.type === 'keep') selectedCount--
+  if (last.type === 'reject') rejectedCount--
+
+  showOverlay('UNDO', 'yellow')
+  showImage()
+}
+
+// KEYBOARD
 document.addEventListener('keydown', (e) => {
   if (!images.length) return
 
   if (e.key === 'ArrowRight') nextImage()
   if (e.key === 'ArrowLeft') prevImage()
-  if (e.key.toLowerCase() === 'd') deleteAndNext()
+  if (e.key.toLowerCase() === 'd') rejectImage()
+  if (e.key.toLowerCase() === 'k' || e.key === ' ') keepImage()
+  if (e.key === 'Backspace') undo()
 })
