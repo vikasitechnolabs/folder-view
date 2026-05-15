@@ -1,163 +1,170 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <title>Photo Selector</title>
-  <style>
-    body {
-      background: #111;
-      color: white;
-      text-align: center;
-      font-family: Arial;
-    }
+  <head>
+    <title>Photo Selector</title>
+    <style>
+      body {
+        background: #111;
+        color: white;
+        text-align: center;
+        font-family: Arial;
+      }
 
-    .viewer {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      margin-top: 20px;
-    }
+      .viewer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        margin-top: 20px;
+      }
 
-    .main {
-      max-width: 60%;
-      max-height: 500px;
-      border: 3px solid #00ffcc;
-      box-shadow: 0 0 20px rgba(0,255,200,0.3);
-      border-radius: 10px;
-    }
+      .main {
+        max-width: 60%;
+        max-height: 500px;
+        border: 3px solid #00ffcc;
+        box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
+        border-radius: 10px;
+      }
 
-    .side {
-      width: 150px;
-      height: 100px;
-      object-fit: cover;
-      opacity: 0.4;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+      .side {
+        width: 150px;
+        height: 100px;
+        object-fit: cover;
+        opacity: 0.4;
+        border-radius: 8px;
+        cursor: pointer;
+      }
 
-    button {
-      padding: 10px 20px;
-      margin: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      border-radius: 6px;
-      border: none;
-    }
+      button {
+        padding: 10px 20px;
+        margin: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 6px;
+        border: none;
+      }
 
-    .delete { background: red; color: white; }
-    .keep { background: green; color: white; }
-    .help-btn { background: #444; color: white; }
+      .delete {
+        background: red;
+        color: white;
+      }
+      .keep {
+        background: green;
+        color: white;
+      }
+      .help-btn {
+        background: #444;
+        color: white;
+      }
 
-    #overlay {
-      position: absolute;
-      top: 30px;
-      left: 30px;
-      font-size: 30px;
-      font-weight: bold;
-    }
+      #overlay {
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        font-size: 30px;
+        font-weight: bold;
+      }
 
-    /* Help box */
-    #helpBox {
-      display: none;
-      margin-top: 20px;
-      background: #1e1e1e;
-      padding: 15px;
-      border-radius: 10px;
-      width: 320px;
-      margin-left: auto;
-      margin-right: auto;
-      font-size: 14px;
-      text-align: left;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
+      /* Help box */
+      #helpBox {
+        display: none;
+        margin-top: 20px;
+        background: #1e1e1e;
+        padding: 15px;
+        border-radius: 10px;
+        width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 14px;
+        text-align: left;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
 
-    #helpBox h3 {
-      margin-top: 0;
-      text-align: center;
-    }
+      #helpBox h3 {
+        margin-top: 0;
+        text-align: center;
+      }
 
-    .top-bar {
-      margin-top: 10px;
-    }
-    .progress-container {
-  width: 60%;
-  height: 10px;
-  background: #333;
-  margin: 10px auto;
-  border-radius: 10px;
-  overflow: hidden;
-}
+      .top-bar {
+        margin-top: 10px;
+      }
+      .progress-container {
+        width: 60%;
+        height: 10px;
+        background: #333;
+        margin: 10px auto;
+        border-radius: 10px;
+        overflow: hidden;
+      }
 
-#progressBar {
-  height: 100%;
-  width: 0%;
-  background: #00ffcc;
-}
-  </style>
-</head>
-<body>
+      #progressBar {
+        height: 100%;
+        width: 0%;
+        background: #00ffcc;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>📸 Photo Selector</h2>
 
-<h2>📸 Photo Selector</h2>
+    <div class="top-bar">
+      <button onclick="loadFolder()">📂 Select Folder</button>
+      <button class="help-btn" onclick="toggleHelp()">❓ Help</button>
+    </div>
 
-<div class="top-bar">
-  <button onclick="loadFolder()">📂 Select Folder</button>
-  <button class="help-btn" onclick="toggleHelp()">❓ Help</button>
-</div>
+    <h3 id="counter"></h3>
+    <h4 id="stats"></h4>
+    <div class="progress-container">
+      <div id="progressBar"></div>
+    </div>
 
-<h3 id="counter"></h3>
-<h4 id="stats"></h4>
-<div class="progress-container">
-  <div id="progressBar"></div>
-</div>
+    <div class="viewer">
+      <img id="prevPreview" class="side" onclick="prevImage()" />
+      <img id="preview" class="main" />
+      <img id="nextPreview" class="side" onclick="nextImage()" />
+    </div>
 
-<div class="viewer">
-  <img id="prevPreview" class="side" onclick="prevImage()" />
-  <img id="preview" class="main" />
-  <img id="nextPreview" class="side" onclick="nextImage()" />
-</div>
+    <div id="overlay"></div>
 
-<div id="overlay"></div>
+    <br />
 
-<br>
+    <button onclick="prevImage()">⬅️ Prev (←)</button>
+    <button onclick="nextImage()">Next → (→)</button>
+    <button class="keep" onclick="keepImage()">✅ Keep (K / Space)</button>
+    <button onclick="skipImage()">⏭️ Skip (S)</button>
+    <button class="delete" onclick="rejectImage()">❌ Reject (D)</button>
+    <button onclick="undo()">↩️ Undo (Backspace)</button>
 
-<button onclick="prevImage()">⬅️ Prev (←)</button>
-<button onclick="nextImage()">Next → (→)</button>
-<button class="keep" onclick="keepImage()">✅ Keep (K / Space)</button>
-<button onclick="skipImage()">⏭️ Skip (S)</button>
-<button class="delete" onclick="rejectImage()">❌ Reject (D)</button>
-<button onclick="undo()">↩️ Undo (Backspace)</button>
+    <!-- HELP BOX -->
+    <div id="helpBox">
+      <h3>⌨️ Shortcuts Guide / शॉर्टकट गाइड</h3>
 
-<!-- HELP BOX -->
-<div id="helpBox">
-  <h3>⌨️ Shortcuts Guide / शॉर्टकट गाइड</h3>
+      <p><b>→ Arrow Right</b> → Next Photo (अगली फोटो)</p>
+      <p><b>← Arrow Left</b> → Previous Photo (पिछली फोटो)</p>
+      <p><b>K / Space</b> → Keep / Select (फोटो चुनें)</p>
+      <p><b>D</b> → Reject (फोटो हटाएं)</p>
+      <p><b>Backspace</b> → Undo (पिछला एक्शन वापस लें)</p>
 
-  <p><b>→ Arrow Right</b> → Next Photo (अगली फोटो)</p>
-  <p><b>← Arrow Left</b> → Previous Photo (पिछली फोटो)</p>
-  <p><b>K / Space</b> → Keep / Select (फोटो चुनें)</p>
-  <p><b>D</b> → Reject (फोटो हटाएं)</p>
-  <p><b>Backspace</b> → Undo (पिछला एक्शन वापस लें)</p>
+      <hr />
 
-  <hr>
+      <p><b>Mouse / माउस:</b></p>
+      <p>Click side images → Navigate (नेविगेट करें)</p>
 
-  <p><b>Mouse / माउस:</b></p>
-  <p>Click side images → Navigate (नेविगेट करें)</p>
+      <hr />
 
-  <hr>
+      <p style="text-align: center; opacity: 0.7">
+        Tip: Use keyboard for fastest workflow 🚀<br />
+        सुझाव: तेज काम के लिए कीबोर्ड इस्तेमाल करें
+      </p>
+    </div>
 
-  <p style="text-align:center; opacity:0.7;">
-    Tip: Use keyboard for fastest workflow 🚀<br>
-    सुझाव: तेज काम के लिए कीबोर्ड इस्तेमाल करें
-  </p>
-</div>
+    <script>
+      function toggleHelp() {
+        const box = document.getElementById("helpBox");
+        box.style.display = box.style.display === "none" ? "block" : "none";
+      }
+    </script>
 
-<script>
-function toggleHelp() {
-  const box = document.getElementById('helpBox')
-  box.style.display = box.style.display === 'none' ? 'block' : 'none'
-}
-</script>
-
-<script src="renderer.js"></script>
-
-</body>
+    <script src="renderer.js"></script>
+  </body>
 </html>

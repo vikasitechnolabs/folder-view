@@ -1,11 +1,22 @@
 {
   "name": "photo-selector",
   "version": "1.0.0",
-  "description": "",
+  "description": "this is a photo selct exe",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "photo.selector.app",
+    "productName": "Photo Selector",
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   },
   "keywords": [],
   "author": "",
@@ -13,5 +24,8 @@
   "type": "commonjs",
   "dependencies": {
     "electron": "^42.1.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^26.8.1"
   }
 }
