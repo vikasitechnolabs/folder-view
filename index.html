@@ -79,6 +79,20 @@
     .top-bar {
       margin-top: 10px;
     }
+    .progress-container {
+  width: 60%;
+  height: 10px;
+  background: #333;
+  margin: 10px auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: #00ffcc;
+}
   </style>
 </head>
 <body>
@@ -92,6 +106,9 @@
 
 <h3 id="counter"></h3>
 <h4 id="stats"></h4>
+<div class="progress-container">
+  <div id="progressBar"></div>
+</div>
 
 <div class="viewer">
   <img id="prevPreview" class="side" onclick="prevImage()" />
@@ -106,6 +123,7 @@
 <button onclick="prevImage()">⬅️ Prev (←)</button>
 <button onclick="nextImage()">Next → (→)</button>
 <button class="keep" onclick="keepImage()">✅ Keep (K / Space)</button>
+<button onclick="skipImage()">⏭️ Skip (S)</button>
 <button class="delete" onclick="rejectImage()">❌ Reject (D)</button>
 <button onclick="undo()">↩️ Undo (Backspace)</button>
 
